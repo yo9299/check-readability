@@ -44,21 +44,10 @@ def generateWeightsGadget(length, readability):
     return seen
 
 def generateWeightsG(length, readability, allowed_tuples):
-    result = []
-    seen = set()  # Use a set to track unique combinations
     allowed_set = set(allowed_tuples)  # Convert to a set for faster lookup
-
-    # Iterate over all allowed tuples for the first six elements
     for allowed in allowed_set:
-        #print(allowed)
-        # Generate the remaining elements for the combination
         for remaining in itertools.product(range(1, readability + 1), repeat=length - 6):
-            # Create the full combination
-            combination = allowed + remaining
-            seen.add(combination)  # Add to seen set to track rotations
-
-    print(f"Unique combinations found: {len(seen)}")  # Optional: Print the number of unique combinations
-    return seen
+            yield allowed + remaining
 
 def equivalentGadgets(w1, w2):
     c1 = w1[:6]
@@ -120,9 +109,10 @@ C6.add_edges_from(edges[:6])
 
 def feasibleWeights(graph, readability):
      n = graph.number_of_edges()
-     weights = generateWeightsG(n, readability, weightsC)
+     #weights = generateWeightsG(n, readability, weightsC)
      #print(weights)
-     for w in weights: 
+     i = 0
+     for w in generateWeightsG(n, readability, weightsC): 
          #print(w)
          d = {list(graph.edges)[i]: w[i] for i in range(n)}
          nx.set_edge_attributes(graph, d, name="weight")
@@ -131,6 +121,10 @@ def feasibleWeights(graph, readability):
          if x:
              with open('results.txt', 'a') as file: 
                  file.write(f"Weights:{w}\n")
+         i += 1
+         #if i > 10:
+             #break
+     
           
 
 if __name__=="__main__":
