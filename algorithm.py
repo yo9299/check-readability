@@ -2,7 +2,6 @@ import networkx as nx
 import numpy as np 
 import copy
 import itertools
-import gadgets 
 
 B = nx.DiGraph()
 B.add_nodes_from([0,2,4], bipartite = 0)
@@ -93,6 +92,22 @@ def setLabel(B, u, last_used):
                 last_used += 1
     return last_used 
 
+#queue of vertices, propagate them in order
+
+def isVertexClosed(B, u):
+    if B.nodes[u]['bipartite'] == 0:
+        for v in B.successors(u):
+            w = B.edges[(u,v)]['weight']
+            if not all(B.nodes[u]['label'][-w:] == B.nodes[v]['label'][:w]):
+                    #print(u,v)
+                    return False 
+    else: 
+        for v in B.predecessors(u): 
+            w = B.edges[(v,u)]['weight']
+            if not all(B.nodes[v]['label'][-w:] == B.nodes[u]['label'][:w]):
+                     return False 
+    return True 
+
 #function to propagate to all the neighbors
 #be careful to never propagate 0s !!
 def propagate(B, u, queue):
@@ -131,10 +146,10 @@ def propagate(B, u, queue):
         #print("is target")
     if isVertexClosed(B,u):
         B.nodes[u]['status'] = 'closed'
-    return queue 
+    return [q for q in queue if B.nodes[q]['status'] == 'open']
 
 def propagateFully(B, u):
-    q = propagate(B, u, {})
+    q = propagate(B, u, set())
     while q:
         v = q.pop()
         q = propagate(B, v, q)
@@ -143,21 +158,6 @@ def propagateFully(B, u):
 #setLabel(B, 5, 0)
 #propagateFully(B, 0)
 
-#queue of vertices, propagate them in order
-
-def isVertexClosed(B, u):
-    if B.nodes[u]['bipartite'] == 0:
-        for v in B.successors(u):
-            w = B.edges[(u,v)]['weight']
-            if not all(B.nodes[u]['label'][-w:] == B.nodes[v]['label'][:w]):
-                    #print(u,v)
-                    return False 
-    else: 
-        for v in B.predecessors(u): 
-            w = B.edges[(v,u)]['weight']
-            if not all(B.nodes[v]['label'][-w:] == B.nodes[u]['label'][:w]):
-                     return False 
-    return True 
 
 
 
