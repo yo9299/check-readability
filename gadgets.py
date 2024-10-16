@@ -116,18 +116,19 @@ def feasibleWeights(graph, readability):
          #print(w)
          d = {list(graph.edges)[i]: w[i] for i in range(n)}
          nx.set_edge_attributes(graph, d, name="weight")
+         print(d)
          x = algo(graph, readability)
          print(d, x)
          if x:
              with open('results.txt', 'a') as file: 
                  file.write(f"Weights:{w}\n")
          i += 1
-         #if i > 10:
-             #break
+         if i > 133:
+             break
      
           
 
-if __name__=="__main__":
+#if __name__=="__main__":
     #feasibleWeights(C6, 3)
     #generateWeightsG(42,3, weightsC)
-    feasibleWeights(G,3)
+#    feasibleWeights(G,3)

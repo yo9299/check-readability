@@ -1,7 +1,8 @@
 import networkx as nx 
 import numpy as np 
 import copy
-import itertools 
+import itertools
+import gadgets 
 
 B = nx.DiGraph()
 B.add_nodes_from([0,2,4], bipartite = 0)
@@ -29,7 +30,9 @@ def isSol(B, readability):
         return False 
     else:
         sol = True
-        sources, targets = nx.bipartite.sets(B)
+        sources = [i for i in B.nodes if B.nodes[i]['bipartite'] == 0]
+        targets = [i for i in B.nodes if B.nodes[i]['bipartite'] == 1]
+        #sources, targets = nx.bipartite.sets(B)
         for i in sources:
             for j in targets:
                 if (i,j) in B.edges:
@@ -70,7 +73,7 @@ def undesiredOverlaps(B, u, v, value, readability):
         l2 = B.nodes[v]['label']
         overlap = False 
         for i in range(value, readability+1):
-            if all(l1[-i:] == l2[:i]):
+            if all(l1[-i:] == l2[:i]) and all(l1[-i:]!= np.zeros(i)) and all(l2[:i] != np.zeros(i)):
                 return True 
         return overlap 
 
@@ -109,7 +112,7 @@ def propagate(B, u, queue):
                 #B.nodes[v]['label'][:(min(w, len(lab)))] = lab[-(min(w, len(lab))):]
                 #print(old)
                 if any(B.nodes[v]['label'] != old ):
-                    queue.append(v)
+                    queue.add(v)
         #print("its a source")
     else: 
         for v in B.predecessors(u): 
@@ -122,10 +125,8 @@ def propagate(B, u, queue):
                 #B.nodes[v]['label'][-(min(w, len(lab))):] = lab[:(min(w, len(lab)))]
                 #print(v, B.nodes[v]['label'])
 
-                #print("old", old)
-                #print("new", B.nodes[v]['label'])
                 if any(B.nodes[v]['label'] != old) :
-                    queue.append(v)
+                    queue.add(v)
                 #print(v)
         #print("is target")
     if isVertexClosed(B,u):
@@ -133,13 +134,13 @@ def propagate(B, u, queue):
     return queue 
 
 def propagateFully(B, u):
-    q = propagate(B, u, [])
+    q = propagate(B, u, {})
     while q:
         v = q.pop()
         q = propagate(B, v, q)
-        #print("queue", q)
+        print("queue", q)
 
-setLabel(B, 5, 0)
+#setLabel(B, 5, 0)
 #propagateFully(B, 0)
 
 #queue of vertices, propagate them in order
@@ -166,7 +167,7 @@ def algo(B, readability):
     r = 3 #target readability
     nx.set_node_attributes(B, {i : np.zeros(readability) for i in B.nodes}, name="label")
     open = [v for v in B.nodes] # if B.nodes[v]['status'] == 'open']
-    #print(open)
+    print(open)
     while open: 
         u = open.pop()
         #print(u)
@@ -177,20 +178,18 @@ def algo(B, readability):
         open = [v for v in B.nodes if B.nodes[v]['status'] == 'open']
         if not isFeasible(B, readability):
             return False 
+        print(open)
     return isSol(B, readability)
 
     
-
+#filter our symmetries!
 def generateWeights(length, readability):
     result = list(itertools.product(range(1, readability + 1), repeat=length))
     
     # If length is 1, return a flat list instead of a list of tuples
     if length == 1:
         return [[x[0]] for x in result]
-    
     return result
-
-#given a graph, generate all the possible weights and print the weights and whether true or false.
 
 graph = nx.DiGraph()
 graph.add_nodes_from([0,2], bipartite = 0)
@@ -207,5 +206,6 @@ def feasibleWeights(graph, readability):
          nx.set_edge_attributes(graph, d, name="weight")
          print(graph.edges[(0,1)])
          print(d, algo(graph, readability))
+         
 
-feasibleWeights(graph, 2)
+#feasibleWeights(G, 3)
