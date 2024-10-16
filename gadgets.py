@@ -1,8 +1,10 @@
 import networkx as nx
-import matplotlib.pyplot as plt
-import scipy
+#import matplotlib.pyplot as plt
+#import scipy
 import itertools
 from algorithm import algo
+
+weightsC = [(1, 1, 2, 1, 1, 3),(1, 1, 2, 3, 1, 2),(1, 1, 2, 3, 1, 3),(1, 1, 3, 1, 1, 3),(1, 1, 3, 1, 2, 3),(1, 1, 3, 2, 1, 3),(1, 2, 1, 2, 1, 3),(1, 2, 1, 3, 1, 3),(1, 2, 2, 3, 1, 3),(1, 3, 2, 1, 3, 2)]
 
 def isRotation(tuple1, tuple2, rotations):
     n = len(tuple1)
@@ -28,7 +30,7 @@ def generateWeights(length, readability, rotations):
     #print(len(result))
     return result
 
-def generateWeightsG(length, readability):
+def generateWeightsGadget(length, readability):
     result = []
     seen = set()  # Use a set to track unique combinations
 
@@ -40,6 +42,26 @@ def generateWeightsG(length, readability):
             print(seen)
     #print(len(result))
     return seen
+
+def generateWeightsG(length, readability, allowed_tuples):
+    result = []
+    seen = set()  # Use a set to track unique combinations
+    allowed_set = set(allowed_tuples)  # Convert to a set for faster lookup
+
+    # Iterate over all allowed tuples for the first six elements
+    for allowed in allowed_set:
+        # Generate the remaining elements for the combination
+        for remaining in itertools.product(range(1, readability + 1), repeat=length - 6):
+            # Create the full combination
+            combination = allowed + remaining
+
+            # Check if the combination or any of its rotations are already seen
+            if not any(equivalentGadgets(combination, existing) for existing in seen):
+                result.append(combination)  # Add the new unique combination
+                seen.add(combination)  # Add to seen set to track rotations
+
+    print(f"Unique combinations found: {len(result)}")  # Optional: Print the number of unique combinations
+    return result
 
 def equivalentGadgets(w1, w2):
     c1 = w1[:6]
@@ -116,4 +138,4 @@ def feasibleWeights(graph, readability):
 
 if __name__=="__main__":
     #feasibleWeights(C6, 3)
-    generateWeightsG(42,3)
+    generateWeightsG(42,3, weightsC)
