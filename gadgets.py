@@ -50,15 +50,15 @@ def generateWeightsG(length, readability, allowed_tuples):
 
     # Iterate over all allowed tuples for the first six elements
     for allowed in allowed_set:
-        print(allowed)
+        #print(allowed)
         # Generate the remaining elements for the combination
         for remaining in itertools.product(range(1, readability + 1), repeat=length - 6):
             # Create the full combination
             combination = allowed + remaining
             seen.add(combination)  # Add to seen set to track rotations
 
-    print(f"Unique combinations found: {len(result)}")  # Optional: Print the number of unique combinations
-    return result
+    print(f"Unique combinations found: {len(seen)}")  # Optional: Print the number of unique combinations
+    return seen
 
 def equivalentGadgets(w1, w2):
     c1 = w1[:6]
@@ -120,7 +120,7 @@ C6.add_edges_from(edges[:6])
 
 def feasibleWeights(graph, readability):
      n = graph.number_of_edges()
-     weights = generateWeights(n, readability)
+     weights = generateWeightsG(n, readability, weightsC)
      #print(weights)
      for w in weights: 
          #print(w)
@@ -135,4 +135,5 @@ def feasibleWeights(graph, readability):
 
 if __name__=="__main__":
     #feasibleWeights(C6, 3)
-    generateWeightsG(42,3, weightsC)
+    #generateWeightsG(42,3, weightsC)
+    feasibleWeights(G,3)
