@@ -50,15 +50,12 @@ def generateWeightsG(length, readability, allowed_tuples):
 
     # Iterate over all allowed tuples for the first six elements
     for allowed in allowed_set:
+        print(allowed)
         # Generate the remaining elements for the combination
         for remaining in itertools.product(range(1, readability + 1), repeat=length - 6):
             # Create the full combination
             combination = allowed + remaining
-
-            # Check if the combination or any of its rotations are already seen
-            if not any(equivalentGadgets(combination, existing) for existing in seen):
-                result.append(combination)  # Add the new unique combination
-                seen.add(combination)  # Add to seen set to track rotations
+            seen.add(combination)  # Add to seen set to track rotations
 
     print(f"Unique combinations found: {len(result)}")  # Optional: Print the number of unique combinations
     return result
