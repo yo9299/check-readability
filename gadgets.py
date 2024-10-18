@@ -3,6 +3,8 @@ import networkx as nx
 #import scipy
 import itertools
 from algorithm import algo
+import pickle  # Used to store state as binary data
+import os 
 
 # Create a directed graph
 G = nx.DiGraph()
@@ -24,6 +26,12 @@ weightsC = [(1,2,1,2,1,2)]#, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1,
 
 weightsG = (1,2,1,2,1,2, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,2)
 
+C6 = nx.DiGraph() 
+C6.add_nodes_from(source_nodes[:3], bipartite=0)  # Set of sources
+C6.add_nodes_from(target_nodes[:3], bipartite=1)  # Set of targets
+C6.add_edges_from(edgesg[:6])
+
+
 def isRotation(tuple1, tuple2, rotations):
     n = len(tuple1)
     for s in rotations : #range(len(tuple1)):#[6,12,18,24, 30]
@@ -35,31 +43,6 @@ def isRotation(tuple1, tuple2, rotations):
             return True 
     return False 
 
-
-def generateWeights(length, readability, rotations):
-    result = []
-    seen = set()  # Use a set to track unique combinations
-
-    for combination in itertools.product(range(1, readability + 1), repeat=length):
-        # Check if the combination or any of its rotations are already seen
-        if not any(isRotation(combination, existing, rotations) for existing in seen):
-            result.append(combination)  # Add the new unique combination
-            seen.add(combination)  # Add to seen set to track rotations
-    #print(len(result))
-    return result
-
-def generateWeightsGadget(length, readability):
-    result = []
-    seen = set()  # Use a set to track unique combinations
-
-    for combination in itertools.product(range(1, readability + 1), repeat=length):
-        # Check if the combination or any of its rotations are already seen
-        if not any(equivalentGadgets(combination, existing) for existing in seen):
-            #result.append(combination)  # Add the new unique combination
-            seen.add(combination)  # Add to seen set to track rotations
-            print(seen)
-    #print(len(result))
-    return seen
 
 def generateWeightsG(length, readability, allowed_tuples):
     allowed_set = set(allowed_tuples)  # Convert to a set for faster lookup
@@ -81,11 +64,6 @@ def equivalentGadgets(w1, w2):
     return False 
 
 
-C6 = nx.DiGraph() 
-C6.add_nodes_from(source_nodes[:3], bipartite=0)  # Set of sources
-C6.add_nodes_from(target_nodes[:3], bipartite=1)  # Set of targets
-C6.add_edges_from(edgesg[:6])
-
 def areWeightsFeasible(graph, edges, readability, weights):
     n = graph.number_of_edges()
     d = {edges[i]: weights[i] for i in range(n)}
@@ -93,24 +71,46 @@ def areWeightsFeasible(graph, edges, readability, weights):
     #print(d)
     x=algo(graph, readability)
     print(d,x)
+    return x 
         
 def feasibleWeights(graph, edges, readability):
     n = graph.number_of_edges()
      #weights = generateWeightsG(n, readability, weightsC)
      #print(weights)
     i = 0
+    if os.path.exists("checkpoint.pkl"):
+            with open("checkpoint.pkl", 'rb') as f:
+                checkpoint = pickle.load(f)
+                i = checkpoint['i']  # Resume from saved index
+                print(f"Resuming from checkpoint at iteration {i}")
+    else:
+        checkpoint = {'i': 0}
     for w in generateWeightsG(n, readability, weightsC): 
+        """ 
         d = {edges[i]: w[i] for i in range(n)}
         #d = {list(graph.edges)[i]: w[i] for i in range(n)}
         nx.set_edge_attributes(graph, d, name="weight")
         #print(d)
         x=algo(graph, readability)
         print(d,x)
+        """ 
+        
+        if i < checkpoint['i']:
+            i += 1  # Skip already processed iterations
+            continue
+        x = areWeightsFeasible(graph, edges, readability, w)
         if x:
             "inside de if"
             with open('results.txt', 'a') as file: 
                 file.write(f"Weights:{w}\n")
         i += 1
+
+        if i % 100 == 0:
+            checkpoint['i'] = i
+            with open("checkpoint.pkl", 'wb') as f:
+                pickle.dump(checkpoint, f)
+            print(f"Checkpoint saved at iteration {i}")
+
         #if i > 10:
             #break
      
