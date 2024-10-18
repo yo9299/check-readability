@@ -4,9 +4,25 @@ import networkx as nx
 import itertools
 from algorithm import algo
 
-weightsC = [(1, 1, 2, 1, 1, 3),(1, 1, 2, 3, 1, 2),(1, 1, 2, 3, 1, 3),(1, 1, 3, 1, 1, 3),(1, 1, 3, 1, 2, 3),(1, 1, 3, 2, 1, 3),(1, 2, 1, 2, 1, 3),(1, 2, 1, 3, 1, 3),(1, 2, 2, 3, 1, 3),(1, 3, 2, 1, 3, 2)]
+# Create a directed graph
+G = nx.DiGraph()
 
-weightsG = (1,2,1,2,1,2, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1)
+# Adding nodes: Even integers for sources, odd integers for targets
+# Source nodes (even) and target nodes (odd) inferred from the image
+source_nodes = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
+target_nodes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
+# Add nodes to the graph
+G.add_nodes_from(source_nodes, bipartite=0)  # Set of sources
+G.add_nodes_from(target_nodes, bipartite=1)  # Set of targets
+
+edgesg =[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), (8,7),(6,9), (8,9), ( 10, 1), (2,11), (10, 11), (10,13), (12, 11), (12,13), (2,15), (14,3), (14,15), (16, 15), (14, 17), (16, 17), (18, 3), (4, 19), (18,19), (18, 21), (20, 19), (20,21), (4, 23), (22, 5), (22,23), (24,23), (22,25), (24,25), (26, 5), (0,27), (26,27), (26, 29), (28, 27), (28,29)]
+
+G.add_edges_from(edgesg)
+
+weightsC = [(1,2,1,2,1,2)]#, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1)] #[(1, 1, 2, 1, 1, 3),(1, 1, 2, 3, 1, 2),(1, 1, 2, 3, 1, 3),(1, 1, 3, 1, 1, 3),(1, 1, 3, 1, 2, 3),(1, 1, 3, 2, 1, 3),(1, 2, 1, 2, 1, 3),(1, 2, 1, 3, 1, 3),(1, 2, 2, 3, 1, 3),(1, 3, 2, 1, 3, 2)]
+
+weightsG = (1,2,1,2,1,2, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,2)
 
 def isRotation(tuple1, tuple2, rotations):
     n = len(tuple1)
@@ -48,7 +64,7 @@ def generateWeightsGadget(length, readability):
 def generateWeightsG(length, readability, allowed_tuples):
     allowed_set = set(allowed_tuples)  # Convert to a set for faster lookup
     for allowed in allowed_set:
-        for remaining in itertools.product(range(1, readability + 1), repeat=length - 6):
+        for remaining in itertools.product(range(1, readability + 1), repeat=length-6):#length - 6):
             yield allowed + remaining
 
 def equivalentGadgets(w1, w2):
@@ -63,21 +79,6 @@ def equivalentGadgets(w1, w2):
         if sol:
             return True
     return False 
-# Create a directed graph
-G = nx.DiGraph()
-
-# Adding nodes: Even integers for sources, odd integers for targets
-# Source nodes (even) and target nodes (odd) inferred from the image
-source_nodes = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
-target_nodes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
-
-# Add nodes to the graph
-G.add_nodes_from(source_nodes, bipartite=0)  # Set of sources
-G.add_nodes_from(target_nodes, bipartite=1)  # Set of targets
-
-edgesg =[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), (8,7),(6,9), (8,9), ( 10, 1), (2,11), (10, 11), (10,13), (12, 11), (12,13), (2,15), (14,3), (14,15), (16, 15), (14, 17), (16, 17), (18, 3), (4, 19), (18,19), (18, 21), (20, 19), (20,21), (4, 23), (22, 5), (22,23), (24,23), (22,25), (24,25), (26, 5), (0,27), (26,27), (26, 29), (28, 27), (28,29)]
-
-G.add_edges_from(edgesg)
 
 
 C6 = nx.DiGraph() 
@@ -85,14 +86,20 @@ C6.add_nodes_from(source_nodes[:3], bipartite=0)  # Set of sources
 C6.add_nodes_from(target_nodes[:3], bipartite=1)  # Set of targets
 C6.add_edges_from(edgesg[:6])
 
-
+def areWeightsFeasible(graph, edges, readability, weights):
+    n = graph.number_of_edges()
+    d = {edges[i]: weights[i] for i in range(n)}
+    nx.set_edge_attributes(graph, d, name="weight")
+    #print(d)
+    x=algo(graph, readability)
+    print(d,x)
+        
 def feasibleWeights(graph, edges, readability):
     n = graph.number_of_edges()
      #weights = generateWeightsG(n, readability, weightsC)
      #print(weights)
     i = 0
     for w in generateWeightsG(n, readability, weightsC): 
-         #print(w)
         d = {edges[i]: w[i] for i in range(n)}
         #d = {list(graph.edges)[i]: w[i] for i in range(n)}
         nx.set_edge_attributes(graph, d, name="weight")
@@ -100,11 +107,12 @@ def feasibleWeights(graph, edges, readability):
         x=algo(graph, readability)
         print(d,x)
         if x:
+            "inside de if"
             with open('results.txt', 'a') as file: 
                 file.write(f"Weights:{w}\n")
         i += 1
-        if i > 10:
-            break
+        #if i > 10:
+            #break
      
           
 
