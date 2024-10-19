@@ -14,6 +14,10 @@ G = nx.DiGraph()
 source_nodes = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
 target_nodes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
 
+#find all the possible weight decomposition of induced subgraph of size n, and then based on this, find the possible ones for n+1
+d = {(0, 1): 1, (2, 1): 2, (2, 3): 1, (4, 3): 2, (4, 5): 1, (0, 5): 2, (0, 7): 1, (6, 1): 1, (6, 7): 1, (8, 7): 1, (6, 9): 1, (8, 9): 1, (10, 1): 1, (2, 11): 1, (10, 11): 1, (10, 13): 1, (12, 11): 1, (12, 13): 1, (2, 15): 1, (14, 3): 1, (14, 15): 1, (16, 15): 1, (14, 17): 1, (16, 17): 1, (18, 3): 1, (4, 19): 1, (18, 19): 1, (18, 21): 2, (20, 19): 3, (20, 21): 2, (4, 23): 3, (22, 5): 3, (22, 23): 1, (24, 23): 1, (22, 25): 1, (24, 25): 1, (26, 5): 1, (0, 27): 3, (26, 27): 3, (26, 29): 2, (28, 27): 2, (28, 29): 1} 
+
+
 # Add nodes to the graph
 G.add_nodes_from(source_nodes, bipartite=0)  # Set of sources
 G.add_nodes_from(target_nodes, bipartite=1)  # Set of targets
@@ -67,6 +71,7 @@ def equivalentGadgets(w1, w2):
 def areWeightsFeasible(graph, edges, readability, weights):
     n = graph.number_of_edges()
     d = {edges[i]: weights[i] for i in range(n)}
+    #d = weights
     nx.set_edge_attributes(graph, d, name="weight")
     #print(d)
     x=algo(graph, readability)
@@ -111,8 +116,8 @@ def feasibleWeights(graph, edges, readability):
                 pickle.dump(checkpoint, f)
             print(f"Checkpoint saved at iteration {i}")
 
-        #if i > 10:
-            #break
+        if i > 25210:
+            break
      
           
 

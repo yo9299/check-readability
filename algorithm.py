@@ -74,6 +74,9 @@ def undesiredOverlaps(B, u, v, value, readability):
         for i in range(value, readability+1):
             if all(l1[-i:] == l2[:i]) and all(l1[-i:]!= np.zeros(i)) and all(l2[:i] != np.zeros(i)):
                 return True 
+        if value == readability +1:
+            if any(l1 != l2) :
+                return True 
         return overlap 
 
 def setLabel(B, u, last_used):
@@ -113,6 +116,7 @@ def propagate(B, u, queue):
     #if it is a source
     lab = B.nodes[u]['label']
     # check only the open successors
+    #print(f"propagate{u}")
     if B.nodes[u]['bipartite'] == 0:
         
         for v in B.successors(u) :
@@ -142,12 +146,16 @@ def propagate(B, u, queue):
         B.nodes[u]['status'] = 'closed'
     return {q for q in queue if B.nodes[q]['status'] == 'open'}
 
-def propagateFully(B, u):
+def propagateFully(B, u, readability):
     q = propagate(B, u, set())
     while q:
         v = q.pop()
         q = propagate(B, v, q)
+        if not isFeasible(B, readability):
+            break
         #print("queue", q)
+        #printLabels(B)
+        
 
 #setLabel(B, 5, 0)
 #propagateFully(B, 0)
@@ -161,6 +169,7 @@ def algo(B, readability):
     r = 3 #target readability
     nx.set_node_attributes(B, {i : np.zeros(readability) for i in B.nodes}, name="label")
     open = [v for v in B.nodes] # if B.nodes[v]['status'] == 'open']
+    #open=[]
     while open: 
         old = copy.copy(last_used)
         while last_used == old:
@@ -168,9 +177,10 @@ def algo(B, readability):
             last_used = setLabel(B, u, last_used)
 
         #print(B.nodes[u]['label'])
-        propagateFully(B, u)
+        propagateFully(B, u, readability)
         
         open = [v for v in B.nodes if B.nodes[v]['status'] == 'open']
+        
         #if B.nodes[u]['status'] == 'open':
         #   open = [u] + open
         if not isFeasible(B, readability):
