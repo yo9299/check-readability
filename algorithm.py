@@ -75,7 +75,7 @@ def undesiredOverlaps(B, u, v, value, readability):
             if all(l1[-i:] == l2[:i]) and all(l1[-i:]!= np.zeros(i)) and all(l2[:i] != np.zeros(i)):
                 return True 
         if value == readability +1:
-            if any(l1 != l2) :
+            if any(l1 != l2) and all(l1!= np.zeros(len(l1))) and all(l2 != np.zeros(len(l2))):
                 return True 
         return overlap 
 
