@@ -79,8 +79,11 @@ def getSol(Graph, subgraph, allowed, readability):
     else:
         v = pickVertex(Graph, subgraph)
         sol = generateWeightsSubgraph(Graph,subgraph, allowed, readability, v)
-        print(f"allowed{sol}")
         subgraph.append(v)
+
+        with open("solution.txt", 'a') as file:
+            #print(f"allowed{sol}")
+            file.write(f"allowed for subgraph {subgraph} : {sol}\n")
         #print(f"subgraph append{subgraph}")
         return getSol(Graph, subgraph, sol, readability)
         
