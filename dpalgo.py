@@ -2,6 +2,7 @@ import gadgets
 import itertools
 from algorithm import algo
 import networkx as nx 
+from gadgets import isRotation
 
 G = nx.DiGraph()
 
@@ -14,6 +15,22 @@ G.add_nodes_from(target_nodes, bipartite=1)
 edgesg =[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), (8,7),(6,9), (8,9), ( 10, 1), (2,11), (10, 11), (10,13), (12, 11), (12,13), (2,15), (14,3), (14,15), (16, 15), (14, 17), (16, 17), (18, 3), (4, 19), (18,19), (18, 21), (20, 19), (20,21), (4, 23), (22, 5), (22,23), (24,23), (22,25), (24,25), (26, 5), (0,27), (26,27), (26, 29), (28, 27), (28,29)]
 
 G.add_edges_from(edgesg)
+
+def equivalentGadgets(d1, d2, ordered_keys):
+    w1 = [d1[key] for key in ordered_keys if key in d1]
+    w2 = [d2[key] for key in ordered_keys if key in d2]
+    c1 = w1[:6]
+    r1 = w1[-len(w1) +6 :]
+    c2 = w1[:6]
+    r2 = w1[-len(w1) +6 :]
+    for i in range(5):
+        sol = True 
+        if not isRotation(c1, c2, [i]) or not isRotation(r1, r2, [6*i]):
+            sol = False 
+        if sol:
+            return True
+    return False 
+
 
 def generateWeights(allowed, readability, newEdges):
     # allowed is a dictionary of pairs edges, weights
@@ -52,10 +69,16 @@ def generateWeightsSubgraph(Graph, subgraph, allowed, readability, vertex):
         for w in generateWeights(a, readability, newEdges):
             #check if feasible and append to results
             #have to call with subgraph not graph
-            x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
+            if subgraph + [vertex] == list(Graph.nodes):
+                if not any([equivalentGadgets(w,y, edgesg) for y in sol]):
+                    x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
+                    if x:
+                        sol.append(w)
+            else:
+                x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
             #print(x)
-            if x :
-                sol.append(w)
+                if x :
+                    sol.append(w)
     return sol 
 
 def pickVertex(Graph, subgraph):
@@ -81,9 +104,9 @@ def getSol(Graph, subgraph, allowed, readability):
         sol = generateWeightsSubgraph(Graph,subgraph, allowed, readability, v)
         subgraph.append(v)
 
-        with open("solution.txt", 'a') as file:
+        with open("solution_filtered.txt", 'w') as file:
             print(f"allowed{sol}")
-            file.write(f"allowed for subgraph {subgraph} : {sol}\n")
+            file.write(f"allowed for subgraph {subgraph} with len {len(sol)} : {sol}\n")
         #print(f"subgraph append{subgraph}")
         return getSol(Graph, subgraph, sol, readability)
         
