@@ -82,7 +82,7 @@ def getSol(Graph, subgraph, allowed, readability):
         subgraph.append(v)
 
         with open("solution.txt", 'a') as file:
-            #print(f"allowed{sol}")
+            print(f"allowed{sol}")
             file.write(f"allowed for subgraph {subgraph} : {sol}\n")
         #print(f"subgraph append{subgraph}")
         return getSol(Graph, subgraph, sol, readability)
