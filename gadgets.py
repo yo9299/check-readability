@@ -28,7 +28,8 @@ G.add_edges_from(edgesg)
 
 weightsC = [(1,2,1,2,1,2)]#, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1)] #[(1, 1, 2, 1, 1, 3),(1, 1, 2, 3, 1, 2),(1, 1, 2, 3, 1, 3),(1, 1, 3, 1, 1, 3),(1, 1, 3, 1, 2, 3),(1, 1, 3, 2, 1, 3),(1, 2, 1, 2, 1, 3),(1, 2, 1, 3, 1, 3),(1, 2, 2, 3, 1, 3),(1, 3, 2, 1, 3, 2)]
 
-weightsG = (1,2,1,2,1,2, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,1, 1,1,1,3,3,2, 3,3,1,1,1,2)
+weightsG = (1,2,1,2,1,2, 1,1,1,2,2,3, 3,3,1,1,1,1, 1,1,1,2,2,3, 3,3,1,1,1,1, 1,1,1,2,2,3, 3,3,1,1,1,2)
+counter  = (1,3,1,2,1,2, 1,1,1,2,2,3, 2,2,1,3,3,1, 1,1,1,2,2,3, 3,3,1,1,1,1, 1,1,1,2,2,3, 3,3,1,1,1,2)
 
 C6 = nx.DiGraph() 
 C6.add_nodes_from(source_nodes[:3], bipartite=0)  # Set of sources
@@ -105,7 +106,6 @@ def feasibleWeights(graph, edges, readability):
             continue
         x = areWeightsFeasible(graph, edges, readability, w)
         if x:
-            "inside de if"
             with open('results.txt', 'a') as file: 
                 file.write(f"Weights:{w}\n")
         i += 1
@@ -119,9 +119,36 @@ def feasibleWeights(graph, edges, readability):
         if i > 25210:
             break
      
-          
+def feasibleWeightsC(graph, edges, readability):
+    n = graph.number_of_edges()
+     #weights = generateWeightsG(n, readability, weightsC)
+     #print(weights)
+    i = 0
+    for w in generateWeightsC(n, readability): 
+        x = areWeightsFeasible(graph, edges, readability, w)
+        if x:
+            with open('results_domino.txt', 'a') as file: 
+                file.write(f"Weights:{w}\n")
+            print(w)
+
+        i += 1
+
+
+def generateWeightsC(length, readability):
+    sol = set()  # Convert to a set for faster lookup
+    for remaining in itertools.product(range(1, readability + 1), repeat=length):
+        for el in sol:
+            valid = True
+            for i in range(5):
+                if isRotation(el, remaining, [i]):  # Use the condition you specified
+                    valid = False
+                    break  # If any condition fails, skip adding this combination
+            if valid:
+                sol.add(remaining)
+    return sol 
 
 if __name__=="__main__":
     #feasibleWeights(C6, 3)
     #generateWeightsG(42,3, weightsC)
-    feasibleWeights(G,edgesg, 3)
+    #feasibleWeights(G,edgesg, 3)
+    print("hola")

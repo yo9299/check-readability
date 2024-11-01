@@ -51,7 +51,7 @@ def generateWeights(length, readability):
 
     for combination in itertools.product(range(1, readability + 1), repeat=length):
         # Check if the combination or any of its rotations are already seen
-        if not any(isEq(combination, existing) for existing in seen):
+        if not any(isRotation(combination, existing) for existing in seen):
             result.append(combination)  # Add the new unique combination
             seen.add(combination)  # Add to seen set to track rotations
     #print(len(result))
@@ -73,31 +73,32 @@ edges =[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), (6,9)
 
 G.add_edges_from(edges)
 
-ext = [(0,7), (8,1), (2,9), (10,3), (4,11), (6,5)]
+ext = [(0,7,2), (8,1,1), (2,9,3), (10,3,1), (4,11,2), (6,5,1)]
 
 C6 = nx.DiGraph() 
-C6.add_nodes_from(source_nodes[:6], bipartite=0)  # Set of sources
-C6.add_nodes_from(target_nodes[:6], bipartite=1)  # Set of targets
-C6.add_edges_from(edges[:6])
-C6.add_edges_from(ext)
-#C6.add_weighted_edges_from([(0,1,1), (2,1,3), (2,3,1), (4, 3,3), (4,5,1), (0, 5,3)]) #+[(6,5), (6,7), (0,7)])
+C6.add_nodes_from(source_nodes[:3], bipartite=0)  # Set of sources
+C6.add_nodes_from(target_nodes[:3], bipartite=1)  # Set of targets
+#C6.add_edges_from(edges[:6])
+C6.add_weighted_edges_from([(0,1,1), (2,1,2), (2,3,1), (4, 3,2), (4,5,1), (0, 5,2)]) #+[(6,5), (6,7), (0,7)])
+#C6.add_weighted_edges_from(ext)
 
+e = [(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5)]
 
-def feasibleWeights(graph, readability):
+def feasibleWeights(graph, edges, readability):
      n = graph.number_of_edges()
      weights = generateWeights(n, readability)
      #print(weights)
      for w in weights: 
          #print(w)
-         d = {list(graph.edges)[i]: w[i] for i in range(n)}
+         d = {edges[i]: w[i] for i in range(n)}
          nx.set_edge_attributes(graph, d, name="weight")
          x = algo(graph, readability)
          print(d, x)
          if x:
-             with open('gadgetc6.txt', 'a') as file: 
+             with open('newc6.txt', 'a') as file: 
                  file.write(f"Weights:{w}\n")
           
 
 if __name__=="__main__":
-    feasibleWeights(C6, 3)
+    #feasibleWeights(C6, 3)
     print(0)
