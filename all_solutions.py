@@ -85,6 +85,8 @@ def getSol(Graph, subgraph, allowed, readability):
         #print(f"subgraph append{subgraph}")
         return getSol(Graph, subgraph, sol, readability)
         
+def main(graph, readability):
+    getSol(graph, [], [{}], readability)
 
 if __name__=="__main__":
     #feasibleWeights(C6, 3)

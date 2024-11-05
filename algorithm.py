@@ -164,6 +164,14 @@ def propagateFully(B, u, readability):
 
 
 def algo(B, readability):
+    """
+    Computes whether a graph with weighted edges has labeling with labels of size "readability" with the size of the overlap determined by weight of the edge.
+    
+    B: networkx bipartite digraph
+    readability: target value of readability for which we want an answer
+    
+    Returns: Boolean 
+    """
     last_used= 0 
     nx.set_node_attributes(B, {i : "open" for i in B.nodes}, name="status")
     r = 3 #target readability
