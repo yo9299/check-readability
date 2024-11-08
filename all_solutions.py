@@ -79,17 +79,36 @@ def getSol(Graph, subgraph, allowed, readability):
         sol = generateWeightsSubgraph(Graph,subgraph, allowed, readability, v)
         subgraph.append(v)
 
-        with open("solution_filtered.txt", 'w') as file:
+        with open("solution_C4.txt", 'w') as file:
             print(f"allowed{sol}")
             file.write(f"allowed for subgraph {subgraph} with len {len(sol)} : {sol}\n")
         #print(f"subgraph append{subgraph}")
         return getSol(Graph, subgraph, sol, readability)
         
 def main(graph, readability):
+    """ 
+    returns all feasible solutions for a given graph
+    graph:networkx bipartite digraph
+    readability: integer
+    creates file with sols
+    """
     getSol(graph, [], [{}], readability)
 
 if __name__=="__main__":
     #feasibleWeights(C6, 3)
     #generateWeightsG(42,3, weightsC)
     #feasibleWeights(G,edgesg, 3)
-    getSol(C, [], [{}], 2)
+    #getSol(C, [], [{}], 2)
+    print(0)
+
+
+G = nx.DiGraph()
+source_nodes = [0, 2, 4, 6, 10, 14, 18, 22, 26]
+target_nodes = [1, 3, 5, 7, 11, 15, 19, 23, 27]
+
+G.add_nodes_from(source_nodes, bipartite=0)  
+G.add_nodes_from(target_nodes, bipartite=1)  
+
+newe=[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), ( 10, 1), (2,11), (10, 11), (2,15), (14,3), (14,15), (18, 3), (4, 19), (18,19), (4, 23), (22, 5), (22,23), (26, 5), (0,27), (26,27)]
+
+G.add_edges_from(newe)
