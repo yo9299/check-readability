@@ -45,12 +45,17 @@ def generateWeightsSubgraph(Graph, subgraph, allowed, readability, vertex):
             #check if feasible and append to results
             #have to call with subgraph not graph
             if subgraph + [vertex] == list(Graph.nodes):
+                repeated = False 
                 for v in sol:
+                    
                     if not equivalentNewGadgets(v, w):    
+                        repeated = True 
+                        break
+                    if not repeated:
                         x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
                         if x:
                             sol.append(w)
-                        if not (w[(0,1)] == 1 and w[2,1]==1 and w[(4,5)] == 1):
+                        if not (w[(0,1)] == 1 and w[(2,1)]==1 and w[(4,5)] == 1):
                             with open("dif_new_gadget.txt", 'w') as file:
                                 file.write(f"allowed for subgraph {subgraph} : {w}\n")
 
