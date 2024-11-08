@@ -51,6 +51,27 @@ def isRotation(tuple1, tuple2, rotations):
             return True 
     return False 
 
+def dictToTuple(d1, d2):
+    c1, c2, r1,r2 = [],[],[],[]
+    for e in [(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5)]:
+        c1.append(d1[e])
+        c2.append(d2[e])
+    for e in [(0,7) , (6, 1), (6,7), ( 10, 1), (2,11), (10, 11), (2,15), (14,3), (14,15), (18, 3), (4, 19), (18,19), (4, 23), (22, 5), (22,23), (26, 5), (0,27), (26,27)]:
+        r1.append(d1[e])
+        r2.append(d2[e])
+    return c1,c2,r1, r2
+
+def equivalentNewGadgets(w1, w2):
+    """ checks whether two weight tuples are equivalent for the gadget (ie rotations of the gadget)"""
+    c1 ,c2, r1,r2 = dictToTuple(w1,w2)
+    for i in range(5):
+        sol = True 
+        if not isRotation(c1, c2, [i]) or not isRotation(r1, r2, [3*i]):
+            sol = False 
+        if sol:
+            return True
+    return False
+
 def equivalentGadgets(w1, w2):
     """ checks whether two weight tuples are equivalent for the gadget (ie rotations of the gadget)"""
     c1 = w1[:6]

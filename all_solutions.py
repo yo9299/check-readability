@@ -5,6 +5,7 @@ import itertools
 from algorithm import algo
 import pickle  # Used to store state as binary data
 import os
+from gadgets import equivalentNewGadgets
 
 C = nx.DiGraph()
 C.add_nodes_from([0,2], bipartite = 0)
@@ -44,9 +45,11 @@ def generateWeightsSubgraph(Graph, subgraph, allowed, readability, vertex):
             #check if feasible and append to results
             #have to call with subgraph not graph
             if subgraph + [vertex] == list(Graph.nodes):
-                    x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
-                    if x:
-                        sol.append(w)
+                for v in sol:
+                    if not equivalentNewGadgets(v, w):    
+                        x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
+                        if x:
+                            sol.append(w)
             else:
                 x = areWeightsFeasible(nx.induced_subgraph(Graph, subgraph + [vertex]),readability, w)
                 if x :
@@ -78,8 +81,8 @@ def getSol(Graph, subgraph, allowed, readability):
         v = pickVertex(Graph, subgraph)
         sol = generateWeightsSubgraph(Graph,subgraph, allowed, readability, v)
         subgraph.append(v)
-
-        with open("solution_C4.txt", 'w') as file:
+            #check if it is the rotation of existing
+        with open("solution_new_gadget.txt", 'w') as file:
             print(f"allowed{sol}")
             file.write(f"allowed for subgraph {subgraph} with len {len(sol)} : {sol}\n")
         #print(f"subgraph append{subgraph}")
@@ -94,13 +97,6 @@ def main(graph, readability):
     """
     getSol(graph, [], [{}], readability)
 
-if __name__=="__main__":
-    #feasibleWeights(C6, 3)
-    #generateWeightsG(42,3, weightsC)
-    #feasibleWeights(G,edgesg, 3)
-    #getSol(C, [], [{}], 2)
-    print(0)
-
 
 G = nx.DiGraph()
 source_nodes = [0, 2, 4, 6, 10, 14, 18, 22, 26]
@@ -112,3 +108,12 @@ G.add_nodes_from(target_nodes, bipartite=1)
 newe=[(0,1), (2,1), (2,3), (4, 3), (4,5), (0, 5), (0,7) , (6, 1), (6,7), ( 10, 1), (2,11), (10, 11), (2,15), (14,3), (14,15), (18, 3), (4, 19), (18,19), (4, 23), (22, 5), (22,23), (26, 5), (0,27), (26,27)]
 
 G.add_edges_from(newe)
+
+if __name__=="__main__":
+    #feasibleWeights(C6, 3)
+    #generateWeightsG(42,3, weightsC)
+    #feasibleWeights(G,edgesg, 3)
+    main(G, 3)
+    print(0)
+
+
